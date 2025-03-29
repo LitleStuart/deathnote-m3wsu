@@ -1,21 +1,48 @@
 'use server'
 
-import { PrismaClient } from "@prisma/client"
+interface User {
+    nickname: string,
+    description: string,
+    faceitId?: string
+}
+type ResponseError = { error: string }
 
-const prisma = new PrismaClient();
+const url = process.env.API_URL;
 
 export async function getUsers(search = '') {
-    return await prisma.user.findMany({ where: { nickname: { contains: search, mode: 'insensitive' } } });
+    const res = await fetch(url + '/users?search=' + search);
+    return await res.json() as User[]
 }
 
 export async function getUserByNickname(nickname: string) {
-    return await prisma.user.findFirst({ where: { nickname } })
+    const res = await fetch(url + '/user/' + nickname);
+    const data = await res.json();
+    if (Object.hasOwn(data, 'error')) {
+        return data as ResponseError
+    }
+    return data as User
 }
 
 export async function addUser(nickname: string, description: string) {
-    return await prisma.user.create({ data: { nickname, description } })
+    const res = await fetch(url + '/user', {
+        method: 'POST',
+        body: JSON.stringify({
+            nickname,
+            description
+        })
+    });
+    const data = await res.json();
+    if (res.status === 200) {
+        return data as User;
+    }
+    return data as ResponseError
 }
 
 export async function deleteUser(nickname: string) {
-    return await prisma.user.delete({ where: { nickname } })
+    const res = await fetch(url + '/user/' + nickname);
+    const data = await res.json();
+    if (res.status === 200) {
+        return data as User;
+    }
+    return data as ResponseError;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { getUsers } from "@/db";
+import { deleteUser, getUsers } from "@/db";
 
 type User = {
   nickname: string;
@@ -50,6 +50,7 @@ function UserTable(users: User[]) {
         <tr>
           <th>Nickname</th>
           <th>Description</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>{users.map(UserEntry)}</tbody>
@@ -57,11 +58,31 @@ function UserTable(users: User[]) {
   );
 }
 
+const handleDelete = (nickname: string) => {
+  const confirm = window.confirm(`Do you want to delete user ${nickname}?`);
+  if (confirm)
+    deleteUser(nickname).then((res) => {
+      if (Object.hasOwn(res, "error")) {
+        alert("Error while deleting the user. Check console for more info.");
+        console.log(res);
+        return;
+      }
+      window.location.reload();
+    });
+};
 function UserEntry({ nickname, description }: User) {
   return (
     <tr key={nickname}>
       <td>{nickname}</td>
       <td>{description}</td>
+      <td
+        onClick={() => {
+          handleDelete(nickname);
+        }}
+        style={{ textAlign: "center", cursor: "pointer" }}
+      >
+        x
+      </td>
     </tr>
   );
 }

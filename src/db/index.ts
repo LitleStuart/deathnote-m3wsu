@@ -39,7 +39,7 @@ export async function addUser(nickname: string, description: string) {
 }
 
 export async function deleteUser(nickname: string) {
-    const res = await fetch(url + '/user/' + nickname);
+    const res = await fetch(url + '/user/' + nickname, { method: 'DELETE' });
     const data = await res.json();
     if (res.status === 200) {
         return data as User;

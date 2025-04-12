@@ -2,13 +2,14 @@
 
 import React from "react";
 import { deleteUser, getUsers } from "@/db";
+import AddUserButton from "../AddUserButton/AddUserButton";
 
 type User = {
   nickname: string;
   description: string;
 };
 
-export default function UserList() {
+export default function UserList({ isAdmin }: { isAdmin: boolean }) {
   const [search, setSearch] = React.useState("");
   const [users, setUsers] = React.useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = React.useState<User[]>([]);
@@ -35,7 +36,7 @@ export default function UserList() {
         style={{ width: "100%" }}
       />
       {filteredUsers.length ? (
-        UserTable(filteredUsers)
+        UserTable(filteredUsers, isAdmin)
       ) : (
         <p>Player not found. Unluck :(</p>
       )}
@@ -43,18 +44,21 @@ export default function UserList() {
   );
 }
 
-function UserTable(users: User[]) {
+function UserTable(users: User[], isAdmin: boolean) {
   return (
-    <table style={{ tableLayout: "auto" }}>
-      <thead>
-        <tr>
-          <th>Nickname</th>
-          <th>Description</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>{users.map(UserEntry)}</tbody>
-    </table>
+    <>
+      {isAdmin ? <AddUserButton /> : null}
+      <table style={{ tableLayout: "auto" }}>
+        <thead>
+          <tr>
+            <th>Nickname</th>
+            <th>Description</th>
+            {isAdmin ? <th></th> : null}
+          </tr>
+        </thead>
+        <tbody>{users.map((user) => UserEntry(user, isAdmin))}</tbody>
+      </table>
+    </>
   );
 }
 
@@ -70,19 +74,21 @@ const handleDelete = (nickname: string) => {
       window.location.reload();
     });
 };
-function UserEntry({ nickname, description }: User) {
+function UserEntry({ nickname, description }: User, isAdmin: boolean) {
   return (
     <tr key={nickname}>
       <td>{nickname}</td>
       <td>{description}</td>
-      <td
-        onClick={() => {
-          handleDelete(nickname);
-        }}
-        style={{ textAlign: "center", cursor: "pointer" }}
-      >
-        x
-      </td>
+      {isAdmin ? (
+        <td
+          onClick={() => {
+            handleDelete(nickname);
+          }}
+          style={{ textAlign: "center", cursor: "pointer" }}
+        >
+          x
+        </td>
+      ) : null}
     </tr>
   );
 }

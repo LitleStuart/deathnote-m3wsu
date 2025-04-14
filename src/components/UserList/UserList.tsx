@@ -68,7 +68,7 @@ const handleDelete = (nickname: string) => {
     deleteUser(nickname).then((res) => {
       if (Object.hasOwn(res, "error")) {
         alert("Error while deleting the user. Check console for more info.");
-        console.log(res);
+        console.error(res);
         return;
       }
       window.location.reload();
